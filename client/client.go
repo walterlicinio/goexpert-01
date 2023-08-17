@@ -14,7 +14,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", "http://server:8080/cotacao", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
 		log.Fatal("Erro criando request:", err)
 	}
@@ -38,7 +38,7 @@ func main() {
 	value := string(body)
 	content := fmt.Sprintf("Dólar: %s", value)
 	log.Println(value)
-	if err := os.WriteFile("/data/cotacao.txt", []byte(content), 0644); err != nil {
+	if err := os.WriteFile("./data/cotacao.txt", []byte(content), 0644); err != nil {
 		log.Println("Erro escrevendo arquivo:", err)
 	}
 	log.Println("Sucesso escrevendo arquivo")
