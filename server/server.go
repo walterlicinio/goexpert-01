@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -27,10 +28,9 @@ func initDB() {
 	var err error
 	db, err = gorm.Open(sqlite.Open("./data/database.db"), &gorm.Config{})
 	if err != nil {
-		fmt.Println("Erro conectando à database:", err)
-		return
+		log.Fatal("Erro conectando à database:", err)
 	}
-	fmt.Println("Sucesso em initDB()")
+	log.Println("Sucesso em initDB()")
 	db.AutoMigrate(&Cotacao{})
 }
 
@@ -40,29 +40,29 @@ func getCotacao(w http.ResponseWriter, r *http.Request) {
 
 	req, err := http.NewRequest(http.MethodGet, "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
-		fmt.Println("Erro criando request:", err)
+		log.Println("Erro criando request:", err)
 		http.Error(w, "Erro criando request", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Sucesso criando request")
+	log.Println("Sucesso criando request")
 
 	req = req.WithContext(ctx)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("Erro fetchando cotação:", err)
+		log.Println("Erro fetchando cotação:", err)
 		http.Error(w, "Erro fetchando cotação", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Sucesso fetchando cotação")
+	log.Println("Sucesso fetchando cotação")
 	defer resp.Body.Close()
 
 	var result map[string]Cotacao
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		fmt.Println("Erro decodando resposta:", err)
+		log.Println("Erro decodando resposta:", err)
 		http.Error(w, "Erro decodando resposta", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Sucesso decodando resposta")
+	log.Println("Sucesso decodando resposta")
 
 	bid := result["USDBRL"].Bid
 	fmt.Fprint(w, bid)
@@ -71,8 +71,8 @@ func getCotacao(w http.ResponseWriter, r *http.Request) {
 	defer dbCancel()
 
 	if err := db.WithContext(dbCtx).Create(&Cotacao{Bid: bid}).Error; err != nil {
-		fmt.Println("Erro criando cotação:", err)
+		log.Println("Erro criando cotação:", err)
 	} else {
-		fmt.Println("Sucesso criando cotação")
+		log.Println("Sucesso criando cotação")
 	}
 }
