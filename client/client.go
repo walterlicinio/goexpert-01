@@ -22,16 +22,17 @@ func main() {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Println("Erro executando request:", err)
-		return
+		log.Fatal("Erro executando request:", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatal("Erro executando request:", resp.Status)
 	}
 	log.Println("Sucesso executando request")
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Erro lendo resposta:", err)
-		return
+		log.Fatal("Erro lendo resposta:", err)
 	}
 	log.Println("Sucesso lendo resposta")
 
@@ -39,7 +40,7 @@ func main() {
 	content := fmt.Sprintf("Dólar: %s", value)
 	log.Println(value)
 	if err := os.WriteFile("./data/cotacao.txt", []byte(content), 0644); err != nil {
-		log.Println("Erro escrevendo arquivo:", err)
+		log.Fatal("Erro escrevendo arquivo:", err)
 	}
 	log.Println("Sucesso escrevendo arquivo")
 }
